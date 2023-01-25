@@ -60,10 +60,12 @@ public class MapGenerator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+#if DEBUG
         if (Input.GetKeyDown(KeyCode.Space))
         {
             GenerateMap();
         }
+#endif
     }
 
     private void GenerateMap()
