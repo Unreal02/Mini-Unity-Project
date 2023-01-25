@@ -3,8 +3,8 @@ using UnityEngine.Tilemaps;
 
 public class MapGenerator : MonoBehaviour
 {
-    public Tile innerTile;
-    public Tile borderTile;
+    public TileBase[] innerTiles;
+    public TileBase borderTile;
     public Tilemap tilemap;
 
     const int mapSize = 32;
@@ -54,6 +54,10 @@ public class MapGenerator : MonoBehaviour
 
     private void Awake()
     {
+        if (innerTiles.Length != 2)
+        {
+            Debug.LogErrorFormat("innerTiles.Length should be 2, but it is {0}", innerTiles.Length);
+        }
         GenerateMap();
     }
 
@@ -81,7 +85,7 @@ public class MapGenerator : MonoBehaviour
             {
                 if (map[x, y] == 1)
                 {
-                    tilemap.SetTile(new Vector3Int(x, y), innerTile);
+                    tilemap.SetTile(new Vector3Int(x, y), innerTiles[(x + y) % 2]);
                 }
                 else
                 {
@@ -91,11 +95,11 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
-    // 재귀적으로 Node 분할
-    // Node 크기가 작으면 분할하지 않고 Room 생성
+    // ????怨몄몵嚥?Node ?브쑵釉?
+    // Node ??由겼첎? ?臾믪몵筌??브쑵釉??? ??꾪?Room ??밴쉐
     private void DivideNode(Node node, int level)
     {
-        // Node 크기가 작으면 분할하지 않고 Room 생성
+        // Node ??由겼첎? ?臾믪몵筌??브쑵釉??? ??꾪?Room ??밴쉐
         if (level >= maxNodeLevel || Mathf.Max(node.width, node.height) < (minRoomSize + 1) * 3)
         {
             int roomWidth = Random.Range(minRoomSize, node.right - node.left);
@@ -107,15 +111,15 @@ public class MapGenerator : MonoBehaviour
             return;
         }
 
-        // 더 긴 방향을 분할
-        // 가로, 세로 크기가 같으면 랜덤한 방향
+        // ??疫?獄쎻뫚堉???브쑵釉?
+        // 揶쎛嚥? ?紐껋쨮 ??由겼첎? 揶쏆늿?앾쭖???뺣쑁??獄쎻뫚堉?
         bool divideDirection = node.height == node.width ? Random.value > 0.5f : node.height > node.width;
 
-        // 분할
+        // ?브쑵釉?
         float ratio = Random.Range(minDivideRatio, 1 - minDivideRatio);
         if (divideDirection)
         {
-            // 상하 분할
+            // ?怨밸릭 ?브쑵釉?
             int middle = node.top + Mathf.RoundToInt(node.height * ratio);
             middle = Mathf.Clamp(middle, node.top + minRoomSize + 1, node.bottom - minRoomSize - 1);
             node.leftNode = new Node(node.left, node.right, node.top, middle);
@@ -123,21 +127,21 @@ public class MapGenerator : MonoBehaviour
         }
         else
         {
-            // 좌우 분할
+            // ?ル슣???브쑵釉?
             int middle = node.left + Mathf.RoundToInt(node.width * ratio);
             middle = Mathf.Clamp(middle, node.left + minRoomSize + 1, node.right - minRoomSize - 1);
             node.leftNode = new Node(node.left, middle, node.top, node.bottom);
             node.rightNode = new Node(middle, node.right, node.top, node.bottom);
         }
 
-        // 재귀적으로 분할
+        // ????怨몄몵嚥??브쑵釉?
         DivideNode(node.leftNode, level + 1);
         DivideNode(node.rightNode, level + 1);
     }
 
     private void GenerateRoad(Node node)
     {
-        // leftNode, rightNode가 없는 경우
+        // leftNode, rightNode揶쎛 ??용뮉 野껋럩??
         if (node.leftNode == null || node.rightNode == null) { return; }
 
         Room leftRoom = GetRoom(node.leftNode);
@@ -148,15 +152,15 @@ public class MapGenerator : MonoBehaviour
         int rightX = Random.Range(rightRoom.left, rightRoom.right);
         int rightY = Random.Range(rightRoom.top, rightRoom.bottom);
 
-        // leftX < rightX를 보장
+        // leftX < rightX??癰귣똻??
         if (leftX > rightX)
         {
             (leftX, rightX) = (rightX, leftX);
             (leftY, rightY) = (rightY, leftY);
         }
 
-        // 길 생성
-        bool direction = Random.value > 0.5; // 꺾인 길의 방향 결정
+        // 疫???밴쉐
+        bool direction = Random.value > 0.5; // ?곗뼚??疫뀀챷??獄쎻뫚堉?野껉퀣??
         for (int x = leftX; x <= rightX; x++)
         {
             int y = direction ? leftY : rightY;
@@ -168,17 +172,17 @@ public class MapGenerator : MonoBehaviour
             map[x, y] = 1;
         }
 
-        // 재귀적으로 길 생성
+        // ????怨몄몵嚥?疫???밴쉐
         GenerateRoad(node.leftNode);
         GenerateRoad(node.rightNode);
     }
 
     private Room GetRoom(Node node)
     {
-        // Node가 Room을 포함한 경우
+        // Node揶쎛 Room????釉??野껋럩??
         if (node.room != null) { return node.room; }
 
-        // 랜덤하게 leftNode, rightNode 중 하나의 Room 반환
+        // ??뺣쑁??띿쓺 leftNode, rightNode 餓???롪돌??Room 獄쏆꼹??
         if (Random.value > 0.5f)
         {
             return GetRoom(node.leftNode);
