@@ -1,18 +1,23 @@
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
-public class MapGenerator : MonoBehaviour
+public class MapTile
 {
-    public TileBase[] innerTiles;
-    public TileBase borderTile;
-    public Tilemap tilemap;
+    public enum TileType { Wall, Ground }
 
+    public TileType type;
+    public GameObject obj;
+
+    public MapTile() { type = TileType.Wall; }
+}
+
+public class Map
+{
     const int mapSize = 32;
     const int minRoomSize = 4;
     const float minDivideRatio = 0.3f;
     const int maxNodeLevel = 4;
 
-    private int[,] map;
+    MapTile[,] map;
     Node rootNode;
 
     private class Node
@@ -52,47 +57,31 @@ public class MapGenerator : MonoBehaviour
         }
     }
 
-    private void Awake()
+    public Map()
     {
-        if (innerTiles.Length != 2)
+        map = new MapTile[mapSize, mapSize];
+        for (int i = 0; i < mapSize; i++)
         {
-            Debug.LogErrorFormat("innerTiles.Length should be 2, but it is {0}", innerTiles.Length);
+            for (int j = 0; j < mapSize; j++)
+            {
+                map[i, j] = new MapTile();
+            }
         }
-        GenerateMap();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-#if DEBUG
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            GenerateMap();
-        }
-#endif
-    }
-
-    private void GenerateMap()
-    {
-        map = new int[mapSize, mapSize];
         rootNode = new Node(0, mapSize - 1, 0, mapSize - 1);
         DivideNode(rootNode, 0);
         GenerateRoad(rootNode);
+    }
 
-        for (int x = 0; x < mapSize; x++)
-        {
-            for (int y = 0; y < mapSize; y++)
-            {
-                if (map[x, y] == 1)
-                {
-                    tilemap.SetTile(new Vector3Int(x, y), innerTiles[(x + y) % 2]);
-                }
-                else
-                {
-                    tilemap.SetTile(new Vector3Int(x, y), borderTile);
-                }
-            }
-        }
+    public int GetSize() { return mapSize; }
+
+    public MapTile GetTile(int x, int y) { return map[x, y]; }
+
+    public (int, int) GetRandomPosition()
+    {
+        Room room = GetRandomRoom(rootNode);
+        int x = Random.Range(room.left, room.right);
+        int y = Random.Range(room.top, room.bottom);
+        return (x, y);
     }
 
     // 재귀적으로 Node 분할
@@ -144,8 +133,8 @@ public class MapGenerator : MonoBehaviour
         // leftNode, rightNode가 없는 경우
         if (node.leftNode == null || node.rightNode == null) { return; }
 
-        Room leftRoom = GetRoom(node.leftNode);
-        Room rightRoom = GetRoom(node.rightNode);
+        Room leftRoom = GetRandomRoom(node.leftNode);
+        Room rightRoom = GetRandomRoom(node.rightNode);
 
         int leftX = Random.Range(leftRoom.left, leftRoom.right);
         int leftY = Random.Range(leftRoom.top, leftRoom.bottom);
@@ -164,12 +153,12 @@ public class MapGenerator : MonoBehaviour
         for (int x = leftX; x <= rightX; x++)
         {
             int y = direction ? leftY : rightY;
-            map[x, y] = 1;
+            map[x, y].type = MapTile.TileType.Ground;
         }
         for (int y = Mathf.Min(leftY, rightY); y <= Mathf.Max(leftY, rightY); y++)
         {
             int x = direction ? rightX : leftX;
-            map[x, y] = 1;
+            map[x, y].type = MapTile.TileType.Ground;
         }
 
         // 재귀적으로 길 생성
@@ -177,7 +166,7 @@ public class MapGenerator : MonoBehaviour
         GenerateRoad(node.rightNode);
     }
 
-    private Room GetRoom(Node node)
+    private Room GetRandomRoom(Node node)
     {
         // Node가 Room을 포함한 경우
         if (node.room != null) { return node.room; }
@@ -185,11 +174,11 @@ public class MapGenerator : MonoBehaviour
         // 랜덤하게 leftNode, rightNode 중 하나의 Room 반환
         if (Random.value > 0.5f)
         {
-            return GetRoom(node.leftNode);
+            return GetRandomRoom(node.leftNode);
         }
         else
         {
-            return GetRoom(node.rightNode);
+            return GetRandomRoom(node.rightNode);
         }
     }
 
@@ -199,7 +188,7 @@ public class MapGenerator : MonoBehaviour
         {
             for (int y = room.top; y < room.bottom; y++)
             {
-                map[x, y] = 1;
+                map[x, y].type = MapTile.TileType.Ground;
             }
         }
     }
