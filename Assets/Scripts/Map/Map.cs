@@ -23,19 +23,19 @@ public class Map
     private class Node
     {
         public int left, right;
-        public int top, bottom;
+        public int bottom, top;
         public int width, height;
         public Node leftNode, rightNode;
         public Room room;
 
-        public Node(int l, int r, int t, int b)
+        public Node(int l, int r, int b, int t)
         {
             left = l;
             right = r;
-            top = t;
             bottom = b;
+            top = t;
             width = r - l;
-            height = b - t;
+            height = t - b;
         }
 
     }
@@ -43,15 +43,15 @@ public class Map
     private class Room
     {
         public int left, right;
-        public int top, bottom;
+        public int bottom, top;
         public int width, height;
 
-        public Room(int l, int t, int w, int h)
+        public Room(int l, int b, int w, int h)
         {
             left = l;
             right = l + w;
-            top = t;
-            bottom = t + h;
+            bottom = b;
+            top = b + h;
             width = w;
             height = h;
         }
@@ -80,7 +80,7 @@ public class Map
     {
         Room room = GetRandomRoom(rootNode);
         int x = Random.Range(room.left, room.right);
-        int y = Random.Range(room.top, room.bottom);
+        int y = Random.Range(room.bottom, room.top);
         return (x, y);
     }
 
@@ -92,9 +92,9 @@ public class Map
         if (level >= maxNodeLevel || Mathf.Max(node.width, node.height) < (minRoomSize + 1) * 3)
         {
             int roomWidth = Random.Range(minRoomSize, node.right - node.left);
-            int roomHeight = Random.Range(minRoomSize, node.bottom - node.top);
+            int roomHeight = Random.Range(minRoomSize, node.top - node.bottom);
             int roomLeft = Random.Range(node.left + 1, node.right - roomWidth);
-            int roomTop = Random.Range(node.top + 1, node.bottom - roomHeight);
+            int roomTop = Random.Range(node.bottom + 1, node.top - roomHeight);
             node.room = new Room(roomLeft, roomTop, roomWidth, roomHeight);
             OnGenerateRoom(node.room);
             return;
@@ -109,18 +109,18 @@ public class Map
         if (divideDirection)
         {
             // 상하 분할
-            int middle = node.top + Mathf.RoundToInt(node.height * ratio);
-            middle = Mathf.Clamp(middle, node.top + minRoomSize + 1, node.bottom - minRoomSize - 1);
-            node.leftNode = new Node(node.left, node.right, node.top, middle);
-            node.rightNode = new Node(node.left, node.right, middle, node.bottom);
+            int middle = node.bottom + Mathf.RoundToInt(node.height * ratio);
+            middle = Mathf.Clamp(middle, node.bottom + minRoomSize + 1, node.top - minRoomSize - 1);
+            node.leftNode = new Node(node.left, node.right, node.bottom, middle);
+            node.rightNode = new Node(node.left, node.right, middle, node.top);
         }
         else
         {
             // 좌우 분할
             int middle = node.left + Mathf.RoundToInt(node.width * ratio);
             middle = Mathf.Clamp(middle, node.left + minRoomSize + 1, node.right - minRoomSize - 1);
-            node.leftNode = new Node(node.left, middle, node.top, node.bottom);
-            node.rightNode = new Node(middle, node.right, node.top, node.bottom);
+            node.leftNode = new Node(node.left, middle, node.bottom, node.top);
+            node.rightNode = new Node(middle, node.right, node.bottom, node.top);
         }
 
         // 재귀적으로 분할
@@ -137,9 +137,9 @@ public class Map
         Room rightRoom = GetRandomRoom(node.rightNode);
 
         int leftX = Random.Range(leftRoom.left, leftRoom.right);
-        int leftY = Random.Range(leftRoom.top, leftRoom.bottom);
+        int leftY = Random.Range(leftRoom.bottom, leftRoom.top);
         int rightX = Random.Range(rightRoom.left, rightRoom.right);
-        int rightY = Random.Range(rightRoom.top, rightRoom.bottom);
+        int rightY = Random.Range(rightRoom.bottom, rightRoom.top);
 
         // leftX < rightX를 보장
         if (leftX > rightX)
@@ -186,7 +186,7 @@ public class Map
     {
         for (int x = room.left; x < room.right; x++)
         {
-            for (int y = room.top; y < room.bottom; y++)
+            for (int y = room.bottom; y < room.top; y++)
             {
                 map[x, y].type = MapTile.TileType.Ground;
             }

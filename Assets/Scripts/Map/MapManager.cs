@@ -3,7 +3,7 @@ using UnityEngine.Tilemaps;
 
 public class MapManager : MonoBehaviour
 {
-    private Map map;
+    public Map map;
     public TileBase[] innerTiles;
     public TileBase borderTile;
     public Tilemap tilemap;
@@ -23,7 +23,7 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    void Awake()
+    private void Awake()
     {
         if (Instance != this)
         {

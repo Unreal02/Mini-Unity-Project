@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Start()
+    private void Start()
     {
         if (Instance != this)
         {
@@ -29,10 +29,11 @@ public class GameManager : MonoBehaviour
         player = FindObjectOfType<Player>();
 
         mapManager.Init();
+        player.Init();
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
