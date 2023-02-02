@@ -36,8 +36,6 @@ public class Player : MonoBehaviour
                 Move();
                 break;
         }
-
-        MoveCamera();
     }
 
     private void SetState(State value)
@@ -99,12 +97,5 @@ public class Player : MonoBehaviour
         {
             SetState(State.Idle);
         }
-    }
-
-    private void MoveCamera()
-    {
-        Vector3 cameraPosition = transform.position;
-        cameraPosition.z = Camera.main.transform.position.z;
-        Camera.main.transform.position = cameraPosition;
     }
 }
