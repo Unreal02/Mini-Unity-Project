@@ -5,9 +5,14 @@ public class MapTile
     public enum TileType { Wall, Ground }
 
     public TileType type;
-    public GameObject obj;
+    public Character character;
 
     public MapTile() { type = TileType.Wall; }
+
+    public bool IsMovable()
+    {
+        return type == TileType.Ground && character == null;
+    }
 }
 
 public class Map

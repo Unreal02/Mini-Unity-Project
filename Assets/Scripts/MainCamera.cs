@@ -5,11 +5,27 @@ public class MainCamera : MonoBehaviour
     const float scrollScale = 0.3f;
     const float scrollMin = 1f;
     const float scrollMax = 4.9f;
-    Player player;
+    public Player player;
+
+    static MainCamera instance;
+    public static MainCamera Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = FindObjectOfType<MainCamera>();
+            }
+            return instance;
+        }
+    }
 
     private void Start()
     {
-        player = FindObjectOfType<Player>();
+        if (Instance != this)
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void Update()
@@ -20,6 +36,7 @@ public class MainCamera : MonoBehaviour
 
     private void MoveCamera()
     {
+        if (player == null) return;
         Vector3 cameraPosition = player.transform.position;
         cameraPosition.z = transform.position.z;
         cameraPosition.y += 0.5f;

@@ -1,9 +1,12 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
     MapManager mapManager;
-    Player player;
+    CharacterManager characterManager;
+
+    public UnityEvent playerActionEvent = new UnityEvent();
 
     static GameManager instance;
     public static GameManager Instance
@@ -26,18 +29,20 @@ public class GameManager : MonoBehaviour
         }
 
         mapManager = MapManager.Instance;
-        player = FindObjectOfType<Player>();
+        characterManager = CharacterManager.Instance;
 
         mapManager.Init();
-        player.Init();
     }
 
     // Update is called once per frame
     private void Update()
     {
+#if DEBUG
         if (Input.GetKeyDown(KeyCode.Space))
         {
+            characterManager.DestroyAll();
             mapManager.Init();
         }
+#endif
     }
 }

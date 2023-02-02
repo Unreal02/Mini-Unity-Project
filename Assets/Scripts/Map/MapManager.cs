@@ -8,7 +8,10 @@ public class MapManager : MonoBehaviour
     public TileBase borderTile;
     public Tilemap tilemap;
 
-    public Player player;
+    public GameObject player;
+    public GameObject enemy;
+
+    const int enemyNumber = 10;
 
     static MapManager instance;
     public static MapManager Instance
@@ -37,11 +40,11 @@ public class MapManager : MonoBehaviour
 
     public void Init()
     {
-        player = FindObjectOfType<Player>();
         map = new Map();
 
         PlaceTiles();
-        PlacePlayer();
+        SpawnPlayer();
+        SpawnEnemies();
     }
 
     private void PlaceTiles()
@@ -64,9 +67,28 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    private void PlacePlayer()
+    private void SpawnPlayer()
     {
-        (int x, int y) = map.GetRandomPosition();
-        player.MoveTo(x, y);
+        int x, y;
+        do
+        {
+            (x, y) = map.GetRandomPosition();
+        } while (!map.GetTile(x, y).IsMovable());
+        Player playerComponent = Instantiate(player, new Vector3(x, y), Quaternion.identity, CharacterManager.Instance.transform).GetComponent<Player>();
+        playerComponent.Init();
+    }
+
+    private void SpawnEnemies()
+    {
+        for (int i = 0; i < enemyNumber; i++)
+        {
+            int x, y;
+            do
+            {
+                (x, y) = map.GetRandomPosition();
+            } while (!map.GetTile(x, y).IsMovable());
+            Enemy EnemyComponent = Instantiate(enemy, new Vector3(x, y), Quaternion.identity, CharacterManager.Instance.transform).GetComponent<Enemy>();
+            EnemyComponent.Init();
+        }
     }
 }
