@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Assertions;
 
 public class MapTile
 {
@@ -6,6 +7,7 @@ public class MapTile
 
     public TileType type;
     public Character character;
+    public int roomId;
 
     public MapTile() { type = TileType.Wall; }
 
@@ -24,6 +26,7 @@ public class Map
 
     MapTile[,] map;
     Node rootNode;
+    private int maxRoomId = 1;
 
     private class Node
     {
@@ -32,6 +35,7 @@ public class Map
         public int width, height;
         public Node leftNode, rightNode;
         public Room room;
+        public int roomCount;
 
         public Node(int l, int r, int b, int t)
         {
@@ -41,8 +45,24 @@ public class Map
             top = t;
             width = r - l;
             height = t - b;
+            roomCount = 0;
         }
 
+        public void UpdateRoomCount()
+        {
+            roomCount = 0;
+            if (room != null) { roomCount++; }
+            if (leftNode != null)
+            {
+                leftNode.UpdateRoomCount();
+                roomCount += leftNode.roomCount;
+            }
+            if (rightNode != null)
+            {
+                rightNode.UpdateRoomCount();
+                roomCount += rightNode.roomCount;
+            }
+        }
     }
 
     private class Room
@@ -50,8 +70,9 @@ public class Map
         public int left, right;
         public int bottom, top;
         public int width, height;
+        public int id;
 
-        public Room(int l, int b, int w, int h)
+        public Room(int l, int b, int w, int h, int i)
         {
             left = l;
             right = l + w;
@@ -59,6 +80,7 @@ public class Map
             top = b + h;
             width = w;
             height = h;
+            id = i;
         }
     }
 
@@ -72,9 +94,12 @@ public class Map
                 map[i, j] = new MapTile();
             }
         }
+        maxRoomId = 1;
         rootNode = new Node(0, mapSize - 1, 0, mapSize - 1);
         DivideNode(rootNode, 0);
         GenerateRoad(rootNode);
+        rootNode.UpdateRoomCount();
+        Assert.AreEqual(maxRoomId - 1, rootNode.roomCount);
     }
 
     public int GetSize() { return mapSize; }
@@ -100,7 +125,7 @@ public class Map
             int roomHeight = Random.Range(minRoomSize, node.top - node.bottom);
             int roomLeft = Random.Range(node.left + 1, node.right - roomWidth);
             int roomTop = Random.Range(node.bottom + 1, node.top - roomHeight);
-            node.room = new Room(roomLeft, roomTop, roomWidth, roomHeight);
+            node.room = new Room(roomLeft, roomTop, roomWidth, roomHeight, maxRoomId++);
             OnGenerateRoom(node.room);
             return;
         }
@@ -176,8 +201,10 @@ public class Map
         // Node가 Room을 포함한 경우
         if (node.room != null) { return node.room; }
 
-        // 랜덤하게 leftNode, rightNode 중 하나의 Room 반환
-        if (Random.value > 0.5f)
+        // 랜덤하게 leftNode, rightNode 중 하나의 Room 반환 (방 개수만큼 가중치)
+        int leftRoomCount = node.leftNode.roomCount;
+        int rightRoomCount = node.rightNode.roomCount;
+        if (Random.Range(0, leftRoomCount + rightRoomCount) < leftRoomCount)
         {
             return GetRandomRoom(node.leftNode);
         }
@@ -194,6 +221,7 @@ public class Map
             for (int y = room.bottom; y < room.top; y++)
             {
                 map[x, y].type = MapTile.TileType.Ground;
+                map[x, y].roomId = room.id;
             }
         }
     }

@@ -31,4 +31,14 @@ public class CharacterManager : MonoBehaviour
             Destroy(c.gameObject);
         }
     }
+
+    public bool IsWaitFinished()
+    {
+        Character[] characters = GetComponentsInChildren<Character>();
+        foreach (Character c in characters)
+        {
+            if (!c.IsIdleOrWaiting()) { return false; }
+        }
+        return true;
+    }
 }

@@ -5,6 +5,7 @@ public class Character : MonoBehaviour
     protected enum State
     {
         Idle,
+        Waiting,
         Moving
     }
     protected State state;
@@ -31,7 +32,6 @@ public class Character : MonoBehaviour
         currentTile = tile;
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        Debug.Log("init");
     }
 
     protected void SetAnimation()
@@ -48,6 +48,8 @@ public class Character : MonoBehaviour
     }
 
     protected virtual void OnStateChange() { }
+
+    public bool IsIdleOrWaiting() { return state == State.Idle || state == State.Waiting; }
 
     protected void SetState(State value)
     {
@@ -78,6 +80,14 @@ public class Character : MonoBehaviour
     {
         transform.position = Vector3.MoveTowards(transform.position, movePosition, Time.deltaTime / moveTime);
         if (transform.position == movePosition)
+        {
+            SetState(State.Waiting);
+        }
+    }
+
+    protected void Wait()
+    {
+        if (CharacterManager.Instance.IsWaitFinished())
         {
             SetState(State.Idle);
         }

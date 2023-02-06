@@ -14,6 +14,9 @@ public class Enemy : Character
             case State.Moving:
                 Move();
                 break;
+            case State.Waiting:
+                Wait();
+                break;
         }
     }
 

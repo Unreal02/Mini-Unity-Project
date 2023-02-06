@@ -5,7 +5,6 @@ public class Player : Character
     public override void Init()
     {
         base.Init();
-        Debug.Log("player init");
         MainCamera.Instance.player = this;
     }
 
@@ -15,6 +14,9 @@ public class Player : Character
         {
             case State.Idle:
                 GetInput();
+                break;
+            case State.Waiting:
+                Wait();
                 break;
             case State.Moving:
                 Move();
@@ -27,6 +29,8 @@ public class Player : Character
         switch (state)
         {
             case State.Idle:
+                break;
+            case State.Waiting:
                 break;
             case State.Moving:
                 GameManager.Instance.playerActionEvent.Invoke();
@@ -47,6 +51,11 @@ public class Player : Character
             {
                 SetMovePoint(dx, dy);
             }
+        }
+        else if (Input.GetKey(KeyCode.Space))
+        {
+            GameManager.Instance.playerActionEvent.Invoke();
+            SetState(State.Waiting);
         }
     }
 }
