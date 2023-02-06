@@ -61,8 +61,9 @@ public class Character : MonoBehaviour
         }
     }
 
-    protected void SetMovePoint(int dx, int dy)
+    protected void TrySetMovePoint(int dx, int dy)
     {
+        if (!map.GetTile((int)movePosition.x + dx, (int)movePosition.y + dy).IsMovable()) { return; }
         movePosition += new Vector3(dx, dy, 0);
         if (dx < 0)
         {

@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class Player : Character
 {
+    public MapTile GetCurrentTile() { return currentTile; }
+    public Vector3 GetMovePosition() { return movePosition; }
+
     public override void Init()
     {
         base.Init();
@@ -47,10 +50,7 @@ public class Player : Character
         if (Input.GetKey(KeyCode.D)) { dx += 1; }
         if (dx == 0 ^ dy == 0)
         {
-            if (map.GetTile((int)transform.position.x + dx, (int)transform.position.y + dy).IsMovable())
-            {
-                SetMovePoint(dx, dy);
-            }
+            TrySetMovePoint(dx, dy);
         }
         else if (Input.GetKey(KeyCode.Space))
         {

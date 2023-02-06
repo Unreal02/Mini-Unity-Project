@@ -15,6 +15,19 @@ public class CharacterManager : MonoBehaviour
         }
     }
 
+    static Player player;
+    public static Player Player
+    {
+        get
+        {
+            if (player == null)
+            {
+                player = FindObjectOfType<Player>();
+            }
+            return player;
+        }
+    }
+
     private void Start()
     {
         if (Instance != this)
