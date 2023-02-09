@@ -30,6 +30,7 @@ public class GameManager : MonoBehaviour
 
         mapManager = MapManager.Instance;
         characterManager = CharacterManager.Instance;
+        ObjectPool.Instance.Init();
 
         mapManager.Init();
     }

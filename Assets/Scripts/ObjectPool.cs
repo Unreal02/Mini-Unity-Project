@@ -1,18 +1,38 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ObjectPool:MonoBehaviour
+public class ObjectPool : MonoBehaviour
 {
-    public GameObject hpBarPrefab;
-    const int poolSize=30;
-
-    private static Queue<HpBar> availableHpBar;
+    static ObjectPool instance;
+    public static ObjectPool Instance
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = FindObjectOfType<ObjectPool>();
+            }
+            return instance;
+        }
+    }
 
     private void Start()
     {
+        if (Instance != this)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+    public GameObject hpBarPrefab;
+    const int poolSize = 30;
+
+    private static Queue<HpBar> availableHpBar;
+
+    public void Init()
+    {
         availableHpBar = new Queue<HpBar>();
-        for(int i = 0; i < poolSize; i++)
+        for (int i = 0; i < poolSize; i++)
         {
             HpBar hpBar = Instantiate(hpBarPrefab, transform).GetComponent<HpBar>();
             hpBar.gameObject.SetActive(false);
