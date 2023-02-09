@@ -104,7 +104,11 @@ public class Map
 
     public int GetSize() { return mapSize; }
 
-    public MapTile GetTile(int x, int y) { return map[x, y]; }
+    public MapTile GetTile(int x, int y)
+    {
+        if (x < 0 || x >= mapSize || y < 0 || y >= mapSize) return null;
+        return map[x, y];
+    }
 
     public (int, int) GetRandomPosition()
     {

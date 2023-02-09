@@ -46,9 +46,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0de2da80785580748891231124d9a85f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hp: 10
-  attack: 5
+  hp: 20
+  damage: 5
   defense: 0
+  weapon: {fileID: 0}
 --- !u!95 &8477351456401763831
 Animator:
   serializedVersion: 5

@@ -31,11 +31,8 @@ public class Player : Character
     {
         switch (state)
         {
-            case State.Idle:
-                break;
-            case State.Waiting:
-                break;
             case State.Moving:
+            case State.Attacking:
                 GameManager.Instance.playerActionEvent.Invoke();
                 break;
         }
@@ -43,6 +40,7 @@ public class Player : Character
 
     private void GetInput()
     {
+        // Move (keyboard)
         int dx = 0, dy = 0;
         if (Input.GetKey(KeyCode.W)) { dy += 1; }
         if (Input.GetKey(KeyCode.A)) { dx += -1; }
@@ -56,6 +54,22 @@ public class Player : Character
         {
             GameManager.Instance.playerActionEvent.Invoke();
             SetState(State.Waiting);
+        }
+
+        // Attack (mouse)
+        if (Input.GetMouseButtonDown(0))
+        {
+            Grid grid = FindObjectOfType<Grid>();
+            Vector3 clickPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            int x = Mathf.RoundToInt(clickPoint.x - grid.transform.position.x - 0.5f);
+            int y = Mathf.RoundToInt(clickPoint.y - grid.transform.position.y - 0.5f);
+
+            MapTile tile = map.GetTile(x, y);
+            if (tile == null || tile.character == null) return;
+            if (tile.character is Enemy)
+            {
+                TryAttack(tile.character);
+            }
         }
     }
 }

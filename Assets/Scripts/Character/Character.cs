@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class Character : MonoBehaviour
@@ -6,13 +7,26 @@ public class Character : MonoBehaviour
     {
         Idle,
         Waiting,
-        Moving
+        Moving,
+        Attacking
     }
     protected State state;
 
     public int hp;
-    public int attack;
+    public void GetAttacked(int delta)
+    {
+        hp -= delta - defense;
+        Debug.LogFormat("get damage {0}", hp);
+        if (hp <= 0)
+        {
+            Destroy(gameObject);
+        }
+    }
+    public int damage;
     public int defense;
+
+    public Weapon weapon;
+    protected Character attackOpponent;
 
     protected Map map;
     protected Animator animator;
@@ -21,6 +35,18 @@ public class Character : MonoBehaviour
     protected const float moveTime = 0.416f;
     protected Vector3 movePosition;
     protected MapTile currentTile;
+
+    protected int GetRadius()
+    {
+        if (weapon != null) { return weapon.radius; }
+        return 1;
+    }
+
+    protected int GetDamage()
+    {
+        if (weapon != null) { return weapon.damage; }
+        return damage;
+    }
 
     public virtual void Init()
     {
@@ -39,11 +65,28 @@ public class Character : MonoBehaviour
         switch (state)
         {
             case State.Idle:
+            case State.Waiting:
                 animator.SetTrigger("Idle");
                 break;
             case State.Moving:
                 animator.SetTrigger("Move");
                 break;
+            case State.Attacking:
+                animator.SetTrigger("Attack");
+                break;
+        }
+    }
+
+    private void SetSpriteFlip(Vector3 facing)
+    {
+        Vector3 facingDir = facing - transform.position;
+        if (facingDir.x < 0)
+        {
+            spriteRenderer.flipX = true;
+        }
+        else if (facingDir.x > 0)
+        {
+            spriteRenderer.flipX = false;
         }
     }
 
@@ -57,6 +100,12 @@ public class Character : MonoBehaviour
         {
             state = value;
             SetAnimation();
+            switch (value)
+            {
+                case State.Attacking:
+                    StartCoroutine("Attack");
+                    break;
+            }
             OnStateChange();
         }
     }
@@ -65,14 +114,7 @@ public class Character : MonoBehaviour
     {
         if (!map.GetTile((int)movePosition.x + dx, (int)movePosition.y + dy).IsMovable()) { return; }
         movePosition += new Vector3(dx, dy, 0);
-        if (dx < 0)
-        {
-            spriteRenderer.flipX = true;
-        }
-        else if (dx > 0)
-        {
-            spriteRenderer.flipX = false;
-        }
+        SetSpriteFlip(movePosition);
         SetTileInfo();
         SetState(State.Moving);
     }
@@ -105,5 +147,26 @@ public class Character : MonoBehaviour
         MapTile tile = map.GetTile(x, y);
         tile.character = this;
         currentTile = tile;
+    }
+
+    protected bool TryAttack(Character opponent)
+    {
+        Vector3 pos = transform.position;
+        Vector3 opponentPos = opponent.transform.position;
+        int distance = Mathf.RoundToInt(Utils.L1Distance(pos, opponentPos));
+        if (distance > GetRadius()) return false;
+        attackOpponent = opponent;
+        SetSpriteFlip(attackOpponent.transform.position);
+        SetState(State.Attacking);
+        return true;
+    }
+
+    IEnumerator Attack()
+    {
+        Debug.Log("attack start");
+        yield return new WaitForSeconds(moveTime);
+        Debug.Log("attack end");
+        attackOpponent.GetAttacked(GetDamage());
+        SetState(State.Waiting);
     }
 }

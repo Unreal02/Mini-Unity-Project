@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -24,12 +23,12 @@ public class Enemy : Character
 
     private void EnemyAI()
     {
-        Func<Vector3, int> LInfNorm = v => Mathf.RoundToInt(Mathf.Max(Mathf.Abs(v.x), Mathf.Abs(v.y)));
         Player player = CharacterManager.Player;
         MapTile playerCurrentTile = player.GetCurrentTile();
         Vector3 playerMovePosition = player.GetMovePosition();
+        if (TryAttack(player)) return;
         if (playerCurrentTile.roomId != 0 && playerCurrentTile.roomId == currentTile.roomId
-         || LInfNorm(playerMovePosition - transform.position) <= 3)
+         || Utils.L1Distance(playerMovePosition, transform.position) <= 4)
         {
             MoveTorwardPlayer();
         }

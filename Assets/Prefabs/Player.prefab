@@ -47,8 +47,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hp: 50
-  attack: 10
-  defense: 0
+  damage: 10
+  defense: 1
+  weapon: {fileID: 0}
 --- !u!95 &4853571335413182363
 Animator:
   serializedVersion: 5
