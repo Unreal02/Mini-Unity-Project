@@ -29,7 +29,7 @@ public class Enemy : Character
         MapTile playerCurrentTile = player.GetCurrentTile();
         Vector3 playerMovePosition = player.GetMovePosition();
         if (playerCurrentTile.roomId != 0 && playerCurrentTile.roomId == currentTile.roomId
-         || LInfNorm(playerMovePosition - transform.position) <= 2)
+         || LInfNorm(playerMovePosition - transform.position) <= 3)
         {
             MoveTorwardPlayer();
         }
