@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5710df36470135748852192b86bc39b0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hp: 50
+  maxHp: 50
   damage: 10
   defense: 1
   weapon: {fileID: 0}

@@ -12,8 +12,9 @@ public class Character : MonoBehaviour
     }
     protected State state;
 
+    public int maxHp;
     public int hp;
-    public void GetAttacked(int delta)
+    public virtual void GetAttacked(int delta)
     {
         hp -= delta - defense;
         Debug.LogFormat("get damage {0}", hp);
@@ -24,6 +25,8 @@ public class Character : MonoBehaviour
     }
     public int damage;
     public int defense;
+
+    public HpBar hpBar;
 
     public Weapon weapon;
     protected Character attackOpponent;
@@ -50,6 +53,7 @@ public class Character : MonoBehaviour
 
     public virtual void Init()
     {
+        hp = maxHp;
         state = State.Idle;
         movePosition = transform.position;
         map = MapManager.Instance.map;
@@ -168,5 +172,13 @@ public class Character : MonoBehaviour
         Debug.Log("attack end");
         attackOpponent.GetAttacked(GetDamage());
         SetState(State.Waiting);
+    }
+
+    private void OnDestroy()
+    {
+        if (hpBar != null)
+        {
+            hpBar.OnCharacterDestroy();
+        }
     }
 }

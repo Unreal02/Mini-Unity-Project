@@ -8,6 +8,15 @@ public class Enemy : Character
         GameManager.Instance.playerActionEvent.AddListener(EnemyAI);
     }
 
+    public override void GetAttacked(int delta)
+    {
+        base.GetAttacked(delta);
+        if (hpBar == null)
+        {
+            hpBar = ObjectPool.GetHpBar(this);
+        }
+    }
+
     private void Update()
     {
         switch (state)
