@@ -9,7 +9,7 @@ public class Player : Character
     {
         base.Init();
         MainCamera.Instance.player = this;
-        hpBar = ObjectPool.GetHpBar(this);
+        hpBar = ObjectPool.Instance.GetHpBar(this);
     }
 
     private void Update()

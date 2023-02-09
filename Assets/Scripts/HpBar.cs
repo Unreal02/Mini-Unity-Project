@@ -27,8 +27,8 @@ public class HpBar : MonoBehaviour
         }
         float ratio = (float)character.hp / (float)character.maxHp;
         bar.localScale = new Vector3(ratio, 1, 1);
-        bar.localPosition = new Vector3(ratio / 2.0f - 0.5f, 0, -0.1f);
-        transform.localPosition = character.transform.position + new Vector3(0, 0, -5);
+        bar.localPosition = new Vector3(ratio / 2.0f - 0.5f, 0, -0.3f);
+        transform.localPosition = character.transform.position;
     }
 
     public void OnCharacterDestroy()
@@ -40,6 +40,6 @@ public class HpBar : MonoBehaviour
     {
         character.hpBar = null;
         character = null;
-        ObjectPool.ReturnHpBar(this);
+        ObjectPool.Instance.ReturnHpBar(this);
     }
 }

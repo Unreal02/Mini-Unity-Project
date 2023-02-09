@@ -13,7 +13,7 @@ public class Enemy : Character
         base.GetAttacked(delta);
         if (hpBar == null)
         {
-            hpBar = ObjectPool.GetHpBar(this);
+            hpBar = ObjectPool.Instance.GetHpBar(this);
         }
     }
 

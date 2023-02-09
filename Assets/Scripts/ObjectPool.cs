@@ -25,13 +25,18 @@ public class ObjectPool : MonoBehaviour
     }
 
     public GameObject hpBarPrefab;
-    const int poolSize = 30;
+    const int poolSize = 10;
 
-    private static Queue<HpBar> availableHpBar;
+    private Queue<HpBar> availableHpBar;
 
     public void Init()
     {
         availableHpBar = new Queue<HpBar>();
+        SpawnPool();
+    }
+
+    private void SpawnPool()
+    {
         for (int i = 0; i < poolSize; i++)
         {
             HpBar hpBar = Instantiate(hpBarPrefab, transform).GetComponent<HpBar>();
@@ -40,15 +45,19 @@ public class ObjectPool : MonoBehaviour
         }
     }
 
-    public static HpBar GetHpBar(Character character)
+    public HpBar GetHpBar(Character character)
     {
+        if (availableHpBar.Count == 0)
+        {
+            SpawnPool();
+        }
         HpBar hpBar = availableHpBar.Dequeue();
         hpBar.gameObject.SetActive(true);
         hpBar.Init(character);
         return hpBar;
     }
 
-    public static void ReturnHpBar(HpBar hpBar)
+    public void ReturnHpBar(HpBar hpBar)
     {
         availableHpBar.Enqueue(hpBar);
         hpBar.gameObject.SetActive(false);
