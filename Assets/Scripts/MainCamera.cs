@@ -45,9 +45,19 @@ public class MainCamera : MonoBehaviour
 
     private void ScrollCamera()
     {
+        float logSize = Mathf.Log(Camera.main.orthographicSize);
         if (Input.mouseScrollDelta.y != 0)
         {
-            Camera.main.orthographicSize = Mathf.Exp(Mathf.Clamp(Mathf.Log(Camera.main.orthographicSize) - Input.mouseScrollDelta.y * scrollScale, scrollMin, scrollMax));
+            logSize -= Input.mouseScrollDelta.y * scrollScale;
         }
+        if (Input.GetKeyDown(KeyCode.Minus))
+        {
+            logSize += scrollScale;
+        }
+        if (Input.GetKeyDown(KeyCode.Equals))
+        {
+            logSize -= scrollScale;
+        }
+        Camera.main.orthographicSize = Mathf.Exp(Mathf.Clamp(logSize, scrollMin, scrollMax));
     }
 }
