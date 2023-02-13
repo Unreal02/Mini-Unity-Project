@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Character : MonoBehaviour
@@ -17,7 +18,6 @@ public class Character : MonoBehaviour
     public virtual void GetAttacked(int delta)
     {
         hp -= delta - defense;
-        Debug.LogFormat("get damage {0}", hp);
         HpDecreaseText hpDecreaseText = ObjectPool.Instance<HpDecreaseText>().GetObject().GetComponent<HpDecreaseText>();
         hpDecreaseText.Init(transform.position, delta - defense);
         if (hp <= 0)
@@ -31,7 +31,7 @@ public class Character : MonoBehaviour
     public HpBar hpBar;
 
     public Weapon weapon;
-    protected Character attackOpponent;
+    protected List<Character> attackOpponent;
 
     protected Map map;
     protected Animator animator;
@@ -161,18 +161,39 @@ public class Character : MonoBehaviour
         Vector3 opponentPos = opponent.transform.position;
         int distance = Mathf.RoundToInt(Utils.L1Distance(pos, opponentPos));
         if (distance > GetRadius()) return false;
-        attackOpponent = opponent;
-        SetSpriteFlip(attackOpponent.transform.position);
+        attackOpponent = new List<Character> { opponent };
+        SetSpriteFlip(opponent.transform.position);
+        SetState(State.Attacking);
+        return true;
+    }
+
+    protected bool AttackSurrounding()
+    {
+        int x = Mathf.RoundToInt(transform.position.x);
+        int y = Mathf.RoundToInt(transform.position.y);
+        attackOpponent = new();
+        for (int i = -1; i <= 1; i++)
+        {
+            for (int j = -1; j <= 1; j++)
+            {
+                if (i == 0 && j == 0) continue;
+                MapTile tile = map.GetTile(x + i, y + j);
+                if (tile == null || tile.character == null) continue;
+                if (tile.character is Enemy)
+                {
+                    attackOpponent.Add(tile.character);
+                }
+            }
+        }
+        if (attackOpponent.Count == 0) return false;
         SetState(State.Attacking);
         return true;
     }
 
     IEnumerator Attack()
     {
-        Debug.Log("attack start");
         yield return new WaitForSeconds(moveTime);
-        Debug.Log("attack end");
-        attackOpponent.GetAttacked(GetDamage());
+        attackOpponent.ForEach(c => c.GetAttacked(GetDamage()));
         SetState(State.Waiting);
     }
 

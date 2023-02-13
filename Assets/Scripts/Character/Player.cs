@@ -63,14 +63,24 @@ public class Player : Character
         {
             Grid grid = FindObjectOfType<Grid>();
             Vector3 clickPoint = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            int x = Mathf.RoundToInt(clickPoint.x - grid.transform.position.x - 0.5f);
-            int y = Mathf.RoundToInt(clickPoint.y - grid.transform.position.y - 0.5f);
 
-            MapTile tile = map.GetTile(x, y);
-            if (tile == null || tile.character == null) return;
-            if (tile.character is Enemy)
+            // Ctrl + click: 범위 공격 (상하 + 좌우 + 대각선 1칸)
+            if (Input.GetKey(KeyCode.LeftControl))
             {
-                TryAttack(tile.character);
+                AttackSurrounding();
+            }
+
+            // 일반 공격 (단일 대상)
+            else
+            {
+                int x = Mathf.RoundToInt(clickPoint.x - grid.transform.position.x - 0.5f);
+                int y = Mathf.RoundToInt(clickPoint.y - grid.transform.position.y - 0.5f);
+                MapTile tile = map.GetTile(x, y);
+                if (tile == null || tile.character == null) return;
+                if (tile.character is Enemy)
+                {
+                    TryAttack(tile.character);
+                }
             }
         }
     }
