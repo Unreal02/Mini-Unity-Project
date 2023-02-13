@@ -30,7 +30,10 @@ public class GameManager : MonoBehaviour
 
         mapManager = MapManager.Instance;
         characterManager = CharacterManager.Instance;
-        ObjectPool.Instance.Init();
+        foreach (ObjectPool pool in FindObjectsOfType<ObjectPool>())
+        {
+            pool.Init();
+        }
 
         mapManager.Init();
     }

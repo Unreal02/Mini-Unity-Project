@@ -3,35 +3,27 @@ using UnityEngine;
 
 public class ObjectPool : MonoBehaviour
 {
-    static ObjectPool instance;
-    public static ObjectPool Instance
+    public static ObjectPool Instance<T>() where T : MonoBehaviour
     {
-        get
+        ObjectPool[] pools = FindObjectsOfType<ObjectPool>();
+        foreach (ObjectPool pool in pools)
         {
-            if (instance == null)
+            if (pool.objPrefab.TryGetComponent<T>(out _))
             {
-                instance = FindObjectOfType<ObjectPool>();
+                return pool;
             }
-            return instance;
         }
+        return null;
     }
 
-    private void Start()
-    {
-        if (Instance != this)
-        {
-            Destroy(gameObject);
-        }
-    }
-
-    public GameObject hpBarPrefab;
+    public GameObject objPrefab;
     const int poolSize = 10;
 
-    private Queue<HpBar> availableHpBar;
+    private Stack<GameObject> availableObjects;
 
     public void Init()
     {
-        availableHpBar = new Queue<HpBar>();
+        availableObjects = new Stack<GameObject>();
         SpawnPool();
     }
 
@@ -39,27 +31,26 @@ public class ObjectPool : MonoBehaviour
     {
         for (int i = 0; i < poolSize; i++)
         {
-            HpBar hpBar = Instantiate(hpBarPrefab, transform).GetComponent<HpBar>();
-            hpBar.gameObject.SetActive(false);
-            availableHpBar.Enqueue(hpBar);
+            GameObject obj = Instantiate(objPrefab, transform);
+            obj.SetActive(false);
+            availableObjects.Push(obj);
         }
     }
 
-    public HpBar GetHpBar(Character character)
+    public GameObject GetObject()
     {
-        if (availableHpBar.Count == 0)
+        if (availableObjects.Count == 0)
         {
             SpawnPool();
         }
-        HpBar hpBar = availableHpBar.Dequeue();
-        hpBar.gameObject.SetActive(true);
-        hpBar.Init(character);
-        return hpBar;
+        GameObject obj = availableObjects.Pop();
+        obj.SetActive(true);
+        return obj;
     }
 
-    public void ReturnHpBar(HpBar hpBar)
+    public void ReturnObject(GameObject obj)
     {
-        availableHpBar.Enqueue(hpBar);
-        hpBar.gameObject.SetActive(false);
+        availableObjects.Push(obj);
+        obj.SetActive(false);
     }
 }

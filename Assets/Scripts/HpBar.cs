@@ -40,6 +40,6 @@ public class HpBar : MonoBehaviour
     {
         character.hpBar = null;
         character = null;
-        ObjectPool.Instance.ReturnHpBar(this);
+        ObjectPool.Instance<HpBar>().ReturnObject(gameObject);
     }
 }

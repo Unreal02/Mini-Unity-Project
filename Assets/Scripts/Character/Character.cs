@@ -18,6 +18,8 @@ public class Character : MonoBehaviour
     {
         hp -= delta - defense;
         Debug.LogFormat("get damage {0}", hp);
+        HpDecreaseText hpDecreaseText = ObjectPool.Instance<HpDecreaseText>().GetObject().GetComponent<HpDecreaseText>();
+        hpDecreaseText.Init(transform.position, delta);
         if (hp <= 0)
         {
             Destroy(gameObject);

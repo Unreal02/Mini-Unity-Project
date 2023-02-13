@@ -13,8 +13,9 @@ public class Enemy : Character
         base.GetAttacked(delta);
         if (hpBar == null)
         {
-            hpBar = ObjectPool.Instance.GetHpBar(this);
+            hpBar = ObjectPool.Instance<HpBar>().GetObject().GetComponent<HpBar>();
         }
+        hpBar.Init(this);
     }
 
     private void Update()
