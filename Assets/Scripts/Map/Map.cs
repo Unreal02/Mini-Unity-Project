@@ -3,7 +3,7 @@ using UnityEngine.Assertions;
 
 public class MapTile
 {
-    public enum TileType { Wall, Ground }
+    public enum TileType { Wall, Ground, Goal }
 
     public TileType type;
     public Character character;
@@ -13,7 +13,7 @@ public class MapTile
 
     public bool IsMovable()
     {
-        return type == TileType.Ground && character == null;
+        return type != TileType.Wall && character == null;
     }
 }
 
@@ -98,6 +98,7 @@ public class Map
         rootNode = new Node(0, mapSize - 1, 0, mapSize - 1);
         DivideNode(rootNode, 0);
         GenerateRoad(rootNode);
+        this.GenerateGoal();
         rootNode.UpdateRoomCount();
         Assert.AreEqual(maxRoomId - 1, rootNode.roomCount);
     }
@@ -198,6 +199,12 @@ public class Map
         // 재귀적으로 길 생성
         GenerateRoad(node.leftNode);
         GenerateRoad(node.rightNode);
+    }
+
+    private void GenerateGoal()
+    {
+        (int x, int y) = this.GetRandomPosition();
+        this.GetTile(x, y).type = MapTile.TileType.Goal;
     }
 
     private Room GetRandomRoom(Node node)

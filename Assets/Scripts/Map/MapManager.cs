@@ -6,6 +6,7 @@ public class MapManager : MonoBehaviour
     public Map map;
     public TileBase[] innerTiles;
     public TileBase borderTile;
+    public TileBase goalTile;
     public Tilemap tilemap;
 
     public GameObject player;
@@ -55,13 +56,17 @@ public class MapManager : MonoBehaviour
         {
             for (int y = 0; y < map.GetSize(); y++)
             {
-                if (map.GetTile(x, y).type == MapTile.TileType.Ground)
+                switch (map.GetTile(x, y).type)
                 {
-                    tilemap.SetTile(new Vector3Int(x, y), innerTiles[(x + y) % 2]);
-                }
-                else
-                {
-                    tilemap.SetTile(new Vector3Int(x, y), borderTile);
+                    case MapTile.TileType.Ground:
+                        tilemap.SetTile(new Vector3Int(x, y), innerTiles[(x + y) % 2]);
+                        break;
+                    case MapTile.TileType.Wall:
+                        tilemap.SetTile(new Vector3Int(x, y), borderTile);
+                        break;
+                    case MapTile.TileType.Goal:
+                        tilemap.SetTile(new Vector3Int(x, y), goalTile);
+                        break;
                 }
             }
         }
@@ -74,8 +79,16 @@ public class MapManager : MonoBehaviour
         {
             (x, y) = map.GetRandomPosition();
         } while (!map.GetTile(x, y).IsMovable());
-        Player playerComponent = Instantiate(player, new Vector3(x, y), Quaternion.identity, CharacterManager.Instance.transform).GetComponent<Player>();
-        playerComponent.Init();
+        Player playerComponent = FindObjectOfType<Player>();
+        if (playerComponent == null)
+        {
+            playerComponent = Instantiate(player, new Vector3(x, y), Quaternion.identity, CharacterManager.Instance.transform).GetComponent<Player>();
+            playerComponent.Init();
+        }
+        else
+        {
+            playerComponent.MoveTo(x, y);
+        }
     }
 
     private void SpawnEnemies()

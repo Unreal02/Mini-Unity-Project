@@ -33,6 +33,12 @@ public class Player : Character
     {
         switch (state)
         {
+            case State.Idle:
+                if (GetCurrentTile().type == MapTile.TileType.Goal)
+                {
+                    GameManager.Instance.stageClearEvent.Invoke();
+                }
+                break;
             case State.Moving:
             case State.Attacking:
                 GameManager.Instance.playerActionEvent.Invoke();
@@ -83,5 +89,20 @@ public class Player : Character
                 }
             }
         }
+    }
+
+    public void MoveTo(int x, int y)
+    {
+        movePosition = new Vector3(x, y);
+        transform.position = movePosition;
+        map = MapManager.Instance.map;
+        SetTileInfo();
+        SetState(State.Idle);
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
+        GameManager.Instance.playerDeathEvent.Invoke();
     }
 }

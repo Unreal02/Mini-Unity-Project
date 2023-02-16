@@ -142,7 +142,7 @@ public class Character : MonoBehaviour
         }
     }
 
-    private void SetTileInfo()
+    protected void SetTileInfo()
     {
         if (currentTile != null)
         {
@@ -197,7 +197,7 @@ public class Character : MonoBehaviour
         SetState(State.Waiting);
     }
 
-    private void OnDestroy()
+    protected virtual void OnDestroy()
     {
         if (hpBar != null)
         {

@@ -36,12 +36,21 @@ public class CharacterManager : MonoBehaviour
         }
     }
 
-    public void DestroyAll()
+    public void DestroyPlayer()
     {
-        Character[] characters = GetComponentsInChildren<Character>();
-        foreach (Character c in characters)
+        Player[] players = GetComponentsInChildren<Player>();
+        foreach (Player p in players)
         {
-            Destroy(c.gameObject);
+            Destroy(p.gameObject);
+        }
+    }
+
+    public void DestroyEnemies()
+    {
+        Enemy[] enemies = GetComponentsInChildren<Enemy>();
+        foreach (Enemy e in enemies)
+        {
+            Destroy(e.gameObject);
         }
     }
 
